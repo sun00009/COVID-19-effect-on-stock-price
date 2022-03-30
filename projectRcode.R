@@ -1,0 +1,81 @@
+library(timeSeries)
+library(timeDate)
+library(FinTS)
+library(fGarch)
+library(rugarch)
+library(TSstudio)
+setwd("C:/Users/RAJEEV KRISHNA S/Dropbox/My PC (DESKTOP-HF4IT6B)/Desktop/PGDBA COURSE/IIM C/SELECTED ASPECTS OF ADVANCED PREDICTIVE MODELLING")
+
+data=read.csv("finaldata.csv")
+head(data)
+print(nrow(data))
+print(ncol(data))
+print(summary(data))
+
+tsactivecases=ts(data$Active.Cases)
+plot(tsactivecases)
+tsbsemetal=ts(data$BSE_metal)
+plot(tsbsemetal)
+tsbsehealth=ts(data$BSE_healthcare)
+plot(tsbsehealth)
+tsbseenergy=ts(data$BSE_energy)
+plot(tsbseenergy)
+tsbsefinance=ts(data$BSE_finance)
+plot(tsbsefinance)
+tsbsefmcg=ts(data$ BSE_FMCG)
+plot(tsbsefmcg)
+tsbseit=ts(data$BSE_IT)
+plot(tsbseit)
+
+library(tseries)
+adf.test(tsactivecases)
+adf.test(tsbsemetal)
+adf.test(tsbsehealth)
+adf.test(tsbseenergy)
+adf.test(tsbsefinance)
+adf.test(tsbsefmcg)
+adf.test(tsbseit)
+
+
+acf(tsbsemetal)
+acf(tsbsehealth)
+acf(tsbseenergy)
+acf(tsbsefinance)
+acf(tsbsefmcg)
+acf(tsbseit)
+acf(tsactivecases)
+
+pacf(tsbsemetal)
+pacf(tsbsehealth)
+pacf(tsbseenergy)
+pacf(tsbsefinance)
+pacf(tsbsefmcg)
+pacf(tsbseit)
+pacf(tsactivecases)
+
+
+library(vars)
+VAR_data <- window(ts.union(tsactivecases,tsbseit,tsbsefmcg,tsbsefinance,tsbseenergy,tsbsehealth,tsbsemetal))
+VARselect(VAR_data)
+
+VAR_est <- VAR(y = VAR_data, p = 9)
+summary(VAR_est)
+
+
+causality(VAR_est, cause = "tsactivecases", vcov.=vcovHC(VAR_est))
+causality(VAR_est, cause = "tsbsemetal", vcov.=vcovHC(VAR_est))
+causality(VAR_est, cause = "tsbsehealth", vcov.=vcovHC(VAR_est))
+causality(VAR_est, cause = "tsbsefmcg", vcov.=vcovHC(VAR_est))
+causality(VAR_est, cause = "tsbsefinance", vcov.=vcovHC(VAR_est))
+causality(VAR_est, cause = "tsbseenergy", vcov.=vcovHC(VAR_est))
+causality(VAR_est, cause = "tsbseit", vcov.=vcovHC(VAR_est))
+
+
+impresp <- irf(VAR_est)
+plot(impresp)
+
+fevd <- fevd(VAR_est, n.ahead =20)
+plot(fevd)
+
+forecasts <- predict(VAR_est,n.ahead=20,ci=.99)
+plot(forecasts)
